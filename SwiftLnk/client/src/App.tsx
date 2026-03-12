@@ -12,7 +12,7 @@ function App() {
     e.preventDefault();
     setLoading(true);
     try {
-      // Connecting to your Node.js backend on port 3000
+
       const response = await axios.post('http://localhost:3000/shorten', { longUrl: url });
       setShortUrl(response.data.shortUrl);
     } catch (err) {
