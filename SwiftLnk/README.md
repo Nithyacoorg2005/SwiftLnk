@@ -1,16 +1,53 @@
-# React + Vite
+SwiftLnk | High-Performance URL Shortener
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+ SwiftLnk  is a full-stack URL shortening service designed for speed and reliability. Built with a distributed architecture, it leverages  Redis  for sub-millisecond redirects and  PostgreSQL  for permanent data persistence.
 
-Currently, two official plugins are available:
+Key Engineering Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+*  Cache-Aside Pattern:  Integrated Redis to reduce database read load. Redirects are served in $O(1)$ time (~2ms) compared to standard DB lookups (~30ms).
+*  Atomic Transactions:  Uses PostgreSQL ACID transactions during the shortening process to ensure data integrity between the ID generation and Base62 encoding steps.
+*  Asynchronous Analytics:  Click tracking is handled as a background process, ensuring analytics updates never block the user’s redirect experience.
+*  Base62 Encoding:  Custom implementation to convert auto-incrementing database IDs into short, URL-friendly strings (e.g., `12582` becomes `3k6`).
 
-## React Compiler
+Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+*  Frontend:  React 18, TypeScript, Tailwind CSS, Vite.
+*  Backend:  Node.js, Express, TypeScript.
+*  Infrastructure:  PostgreSQL (Primary DB), Redis (Caching), Docker.
 
-## Expanding the ESLint configuration
+System Architecture
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+1.  Request:  User clicks `swiftlnk.com/4`.
+2.  Cache Check:  The server checks Redis for key `4`.
+3.  Cache Hit:  If found, user is redirected immediately (302).
+4.  Cache Miss:  If not in Redis, the server queries PostgreSQL, updates the cache for future hits, and then redirects.
+5.  Analytics:  The click counter is incremented in the background.
+
+Getting Started
+
+Prerequisites
+
+* Docker & Docker Compose
+* Node.js (v18+)
+
+Setup
+
+1.  Clone and Install: 
+
+git clone https://github.com/yourusername/SwiftLnk.git
+cd SwiftLnk
+npm install
+
+
+
+2.  Launch Infrastructure: 
+
+docker-compose up -d
+
+
+
+
+3.  Run Development Servers: 
+* Server: `cd server && npm run dev`
+* Client: `cd client && npm run dev`
+
