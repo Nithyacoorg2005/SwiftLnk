@@ -14,11 +14,8 @@ function App() {
     e.preventDefault();
     setLoading(true);
     try {
-      // Sending both longUrl and the optional alias
-      const response = await axios.post(`${API_URL}/shorten`, {
-        longUrl: url,
-        alias: alias || undefined,
-      });
+     
+      const response = await axios.post('http://localhost:3000/shorten', { longUrl: url });
       setShortUrl(response.data.shortUrl);
     } catch (err: any) {
       alert(err.response?.data?.error || "Server Error");
