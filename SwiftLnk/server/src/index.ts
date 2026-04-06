@@ -16,7 +16,7 @@ const pool = new Pool({
 
 const redisClient = createClient();
 redisClient.on('error', err => console.error('Redis Client Error', err));
-redisClient.connect().then(() => console.log("🚀 Redis Connected"));
+redisClient.connect().then(() => console.log("Redis Connected"));
 
 // 2. SHORTEN ENDPOINT (With Transactions)
 // 2. SHORTEN ENDPOINT (Updated for Custom Aliases)

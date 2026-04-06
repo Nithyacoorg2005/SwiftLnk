@@ -4,27 +4,39 @@ import { Link2, Copy, CheckCircle, ExternalLink, Sparkles } from "lucide-react";
 
 function App() {
   const [url, setUrl] = useState("");
-  const [alias, setAlias] = useState(""); // New State
+  const [alias, setAlias] = useState("");
   const [shortUrl, setShortUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
+  // 1. Point to your Railway URL (Set this in Vercel Env Vars)
+  const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setShortUrl(""); // Clear previous link on new attempt
+
     try {
-     
-      const response = await axios.post('http://localhost:3000/shorten', { longUrl: url });
-      setShortUrl(response.data.shortUrl);
+      // 2. Clean Request with Optional Alias
+      const { data } = await axios.post(`${API_BASE}/shorten`, {
+        longUrl: url,
+        alias: alias?.trim() || undefined,
+      });
+
+      // 3. Handle the response (Backend returns the full short URL)
+      setShortUrl(data.shortUrl);
     } catch (err: any) {
-      alert(err.response?.data?.error || "Server Error");
+      console.error("Deployment Debug:", err);
+      // If 502/500 occurs, this alert will show the backend's failure message
+      alert(err.response?.data?.error || "Server Error: Check Backend Logs");
     } finally {
       setLoading(false);
     }
   };
 
   const copyToClipboard = () => {
+    if (!shortUrl) return;
     navigator.clipboard.writeText(shortUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -33,12 +45,14 @@ function App() {
   return (
     <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6 font-sans">
       <div className="max-w-3xl w-full space-y-8 text-center">
+        {/* Animated Logo */}
         <div className="flex justify-center">
           <div className="p-4 bg-blue-600 rounded-3xl shadow-2xl shadow-blue-500/20 animate-bounce-slow">
             <Link2 size={48} strokeWidth={2.5} />
           </div>
         </div>
 
+        {/* Hero Section */}
         <h1 className="text-6xl font-black tracking-tight italic uppercase">
           SWIFT<span className="text-blue-500">LNK</span>
         </h1>
@@ -46,6 +60,7 @@ function App() {
           Custom aliases. Sub-millisecond redirects.
         </p>
 
+        {/* Input Form */}
         <form onSubmit={handleSubmit} className="mt-10 space-y-4">
           <div className="flex flex-col md:flex-row gap-4">
             <input
@@ -80,6 +95,7 @@ function App() {
           </button>
         </form>
 
+        {/* Result Area */}
         {shortUrl && (
           <div className="mt-12 p-8 bg-slate-900/50 border-2 border-blue-500/30 rounded-3xl backdrop-blur-sm flex flex-col sm:flex-row items-center justify-between gap-6 animate-in fade-in zoom-in duration-300">
             <div className="flex flex-col items-start overflow-hidden w-full text-left">
@@ -104,6 +120,7 @@ function App() {
               <a
                 href={shortUrl}
                 target="_blank"
+                rel="noopener noreferrer"
                 className="p-4 bg-blue-600/10 hover:bg-blue-600/20 text-blue-500 rounded-2xl transition-all border border-blue-500/20"
               >
                 <ExternalLink size={28} />
