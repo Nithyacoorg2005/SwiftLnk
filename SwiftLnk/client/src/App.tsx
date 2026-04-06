@@ -9,7 +9,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // 1. Point to your Railway URL (Set this in Vercel Env Vars)
+ 
   const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
   const handleSubmit = async (e: React.FormEvent) => {
